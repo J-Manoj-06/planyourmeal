@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - FoodieHub</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .signup-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            padding: 20px;
+        }
+
+        .signup-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(239, 79, 95, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .signup-box h2 {
+            color: #ef4f5f;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .signup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 20px;
+            padding-left: 45px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #ef4f5f;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(239, 79, 95, 0.1);
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .signup-btn {
+            background: #ef4f5f;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .signup-btn:hover {
+            background: #e03e3e;
+            transform: translateY(-2px);
+        }
+
+        .otp-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .otp-section.active {
+            display: block;
+        }
+
+        .otp-input {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .otp-input input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 20px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+        }
+
+        .resend-otp {
+            color: #ef4f5f;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .resend-otp:hover {
+            text-decoration: underline;
+        }
+
+        .login-link {
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .login-link a {
+            color: #ef4f5f;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #ef4f5f;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1><a href="web.html" style="text-decoration: none; color: inherit;">FoodieHub</a></h1>
+            </div>
+            <div class="nav-menu">
+                <a href="restaurants.html" class="nav-item">Top Rated Restaurants</a>
+                <a href="nearby.html" class="nav-item">Restaurants Near Me</a>
+                <a href="contact.html" class="nav-item">Contact Us</a>
+            </div>
+            <div class="auth-buttons">
+                <button class="login-btn" onclick="window.location.href='login.html'">Login</button>
+                <button class="signup-btn">Sign Up</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Signup Section -->
+    <div class="signup-container">
+        <div class="signup-box">
+            <h2>Create Account</h2>
+            <form class="signup-form" id="signupForm">
+                <div class="form-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="fullName" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="Email Address" required>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" id="mobile" placeholder="Mobile Number" required>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+                <button type="submit" class="signup-btn">Send OTP</button>
+            </form>
+
+            <!-- OTP Verification Section -->
+            <div class="otp-section" id="otpSection">
+                <h3>Enter OTP</h3>
+                <div class="otp-input">
+                    <input type="text" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" maxlength="1" pattern="[0-9]" required>
+                </div>
+                <button class="signup-btn" onclick="verifyOTP()">Verify OTP</button>
+                <a href="#" class="resend-otp" onclick="resendOTP()">Resend OTP</a>
+            </div>
+
+            <div class="login-link">
+                Already have an account? <a href="login.html">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="web.html">Home</a></li>
+                    <li><a href="restaurants.html">Top Rated Restaurants</a></li>
+                    <li><a href="nearby.html">Restaurants Near Me</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Account</h3>
+                <ul>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="signup.html">Sign Up</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 FoodieHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        let userData = null;
+
+        // Handle OTP input
+        const otpInputs = document.querySelectorAll('.otp-input input');
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', function(e) {
+                if (this.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Send OTP
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                mobile: document.getElementById('mobile').value,
+                password: document.getElementById('password').value
+            };
+
+            if (!validateForm(formData)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    userData = formData;
+                    showSuccess('OTP sent successfully!');
+                    document.getElementById('otpSection').classList.add('active');
+                    document.getElementById('signupForm').style.display = 'none';
+                } else {
+                    showError(data.message || 'Failed to send OTP');
+                }
+            } catch (error) {
+                showError('Error connecting to server. Please try again.');
+                console.error('Error:', error);
+            }
+        });
+
+        // Verify OTP
+        async function verifyOTP() {
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            
+            if (otp.length !== 4) {
+                showError('Please enter a valid OTP');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: userData.email,
+                        otp: otp
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Registration successful!');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    showError(data.message || 'Invalid OTP');
+                }
+            } catch (error) {
+                showError('Error connecting to server. Please try again.');
+                console.error('Error:', error);
+            }
+        }
+
+        // Resend OTP
+        async function resendOTP() {
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/resend-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: userData.email
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('OTP resent successfully!');
+                } else {
+                    showError(data.message || 'Failed to resend OTP');
+                }
+            } catch (error) {
+                showError('Error connecting to server. Please try again.');
+                console.error('Error:', error);
+            }
+        }
+
+        // Form validation
+        function validateForm(formData) {
+            if (!formData.fullName || !formData.email || !formData.mobile || !formData.password) {
+                showError('Please fill in all fields');
+                return false;
+            }
+
+            if (!isValidEmail(formData.email)) {
+                showError('Please enter a valid email address');
+                return false;
+            }
+
+            if (!isValidMobile(formData.mobile)) {
+                showError('Please enter a valid mobile number');
+                return false;
+            }
+
+            if (formData.password.length < 6) {
+                showError('Password must be at least 6 characters long');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Helper functions
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function isValidMobile(mobile) {
+            return /^[0-9]{10}$/.test(mobile);
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successElement = document.getElementById('successMessage');
+            successElement.textContent = message;
+            successElement.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html> 

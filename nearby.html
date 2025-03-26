@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurants Near Me - FoodieHub</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        .location-search {
+            display: flex;
+            gap: 1rem;
+            margin: 20px 0;
+            padding: 0 5%;
+        }
+        .location-search input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .location-search button {
+            padding: 10px 20px;
+            background: #ef4f5f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .nearby-restaurants {
+            padding: 20px 5%;
+        }
+        .restaurant-list {
+            margin-top: 20px;
+        }
+        .restaurant-item {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .restaurant-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .restaurant-details {
+            flex: 1;
+        }
+        .distance {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1><a href="web.html" style="text-decoration: none; color: inherit;">FoodieHub</a></h1>
+            </div>
+            <div class="nav-menu">
+                <a href="restaurants.html" class="nav-item">Top Rated Restaurants</a>
+                <a href="nearby.html" class="nav-item">Restaurants Near Me</a>
+                <a href="contact.html" class="nav-item">Contact Us</a>
+            </div>
+            <div class="auth-buttons">
+                <button class="login-btn" onclick="window.location.href='login.html'">Login</button>
+                <button class="signup-btn" onclick="window.location.href='signup.html'">Sign Up</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Nearby Restaurants Section -->
+    <section class="nearby-restaurants">
+        <h2>Restaurants Near You</h2>
+        <div class="location-search">
+            <input type="text" id="location-input" placeholder="Enter your location or use current location">
+            <button onclick="getCurrentLocation()">Use Current Location</button>
+        </div>
+        <div id="map"></div>
+        <div class="restaurant-list" id="restaurant-list">
+            <!-- Restaurants will be dynamically added here -->
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="web.html">Home</a></li>
+                    <li><a href="restaurants.html">Top Rated Restaurants</a></li>
+                    <li><a href="nearby.html">Restaurants Near Me</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Account</h3>
+                <ul>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="signup.html">Sign Up</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 FoodieHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Google Maps API Script -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+    <script>
+        let map;
+        let service;
+        let infowindow;
+        let userLocation;
+
+        // Initialize the map
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 20.5937, lng: 78.9629 }, // Center of India
+                zoom: 5
+            });
+
+            infowindow = new google.maps.InfoWindow();
+            service = new google.maps.places.PlacesService(map);
+        }
+
+        // Get user's current location
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        map.setCenter(userLocation);
+                        searchNearbyRestaurants(userLocation);
+                    },
+                    error => {
+                        alert('Error getting location: ' + error.message);
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by your browser');
+            }
+        }
+
+        // Search for nearby restaurants
+        function searchNearbyRestaurants(location) {
+            const request = {
+                location: location,
+                radius: '5000', // 5km radius
+                type: ['restaurant']
+            };
+
+            service.nearbySearch(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    displayRestaurants(results);
+                }
+            });
+        }
+
+        // Display restaurants on the map and in the list
+        function displayRestaurants(restaurants) {
+            const restaurantList = document.getElementById('restaurant-list');
+            restaurantList.innerHTML = '';
+
+            restaurants.forEach(restaurant => {
+                // Add marker to map
+                const marker = new google.maps.Marker({
+                    position: restaurant.geometry.location,
+                    map: map,
+                    title: restaurant.name
+                });
+
+                // Add click listener to marker
+                marker.addListener('click', () => {
+                    infowindow.setContent(`
+                        <div>
+                            <h3>${restaurant.name}</h3>
+                            <p>Rating: ${restaurant.rating} ⭐</p>
+                            <p>Address: ${restaurant.vicinity}</p>
+                        </div>
+                    `);
+                    infowindow.open(map, marker);
+                });
+
+                // Add restaurant to list
+                const restaurantElement = document.createElement('div');
+                restaurantElement.className = 'restaurant-item';
+                restaurantElement.innerHTML = `
+                    <img src="${restaurant.photos ? restaurant.photos[0].getUrl() : 'https://via.placeholder.com/150'}" 
+                         alt="${restaurant.name}" class="restaurant-image">
+                    <div class="restaurant-details">
+                        <h3>${restaurant.name}</h3>
+                        <p class="location"><i class="fas fa-map-marker-alt"></i> ${restaurant.vicinity}</p>
+                        <div class="rating">
+                            <span class="stars">${'★'.repeat(Math.round(restaurant.rating))}</span>
+                            <span class="rating-number">${restaurant.rating}</span>
+                        </div>
+                        <p class="distance">${calculateDistance(userLocation, restaurant.geometry.location)} km away</p>
+                    </div>
+                `;
+                restaurantList.appendChild(restaurantElement);
+            });
+        }
+
+        // Calculate distance between two points
+        function calculateDistance(point1, point2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = toRad(point2.lat() - point1.lat);
+            const dLon = toRad(point2.lng() - point1.lng);
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(toRad(point1.lat)) * Math.cos(toRad(point2.lat())) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return (R * c).toFixed(1);
+        }
+
+        function toRad(value) {
+            return value * Math.PI / 180;
+        }
+
+        // Initialize map when the page loads
+        window.onload = initMap;
+    </script>
+</body>
+</html> 
